@@ -30,6 +30,8 @@ DAAG-Battery-SOH/
 ├── train.py                # Core training loop with warm-up and evaluation
 └── README.md
 
+
+
 ⚙️ PrerequisitesPython 3.8+PyTorch 1.10+NumPy, SciPy, Scikit-learn, Matplotlib, tqdmInstall dependencies using:Bashpip install torch numpy scipy scikit-learn matplotlib tqdm
 📊 Dataset PreparationThe framework requires the CALCE and MIT battery aging datasets. Place them in the root directory (or specify your custom path). The structure should look like this:PlaintextRoot_Directory/
 ├── CACLE数据集/
