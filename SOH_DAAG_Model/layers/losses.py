@@ -38,26 +38,6 @@ class MMD_Loss(nn.Module):
         loss = torch.mean(XX + YY - XY - YX)
         return loss
 
-# class CORAL_Loss(nn.Module):
-#     def __init__(self):
-#         super(CORAL_Loss, self).__init__()
-#
-#     def forward(self, source, target):
-#         d = source.data.shape[1]
-#
-#         # 源域协方差
-#         xm = torch.mean(source, 0, keepdim=True) - source
-#         xc = xm.t() @ xm
-#
-#         # 目标域协方差
-#         xmt = torch.mean(target, 0, keepdim=True) - target
-#         xct = xmt.t() @ xmt
-#
-#         # Frobenius 范数
-#         loss = torch.mean((xc - xct) ** 2)
-#         loss = loss / (4 * d * d)
-#         return loss
-
 class CORAL_Loss(nn.Module):
     def __init__(self):
         super(CORAL_Loss, self).__init__()
@@ -78,9 +58,7 @@ class CORAL_Loss(nn.Module):
         loss = torch.mean((xc - xct) ** 2)
         loss = loss / (4 * d * d)
         return loss
-# ==========================================
-# DANN 需要的组件：梯度反转层 (GRL)
-# ==========================================
+
 class GradientReversalFunction(Function):
     @staticmethod
     def forward(ctx, x, alpha):
@@ -100,9 +78,6 @@ class GRL(nn.Module):
     def forward(self, x):
         return GradientReversalFunction.apply(x, self.alpha)
 
-# ==========================================
-# DANN 需要的组件：领域鉴别器
-# ==========================================
 class DomainDiscriminator(nn.Module):
     def __init__(self, input_dim=64):
         super(DomainDiscriminator, self).__init__()
