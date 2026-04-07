@@ -1,8 +1,6 @@
 # Data-Aware-Adaptive-Gating-DAAG-framework
 Official code for the DAAG framework: An unsupervised domain adaptation approach utilizing Proxy A-distance (PAD) for dynamic network routing in battery SOH estimation.
 
-# DAAG-Battery-SOH: Data-Aware Adaptive Gating Framework
-
 This repository provides the official PyTorch implementation of the paper:
 **"A Data-Aware Adaptive Gating Framework for Robust Cross-Domain SOH Estimation of Electric Vehicle Lithium-Ion Batteries"** *(Submitted to IEEE Transactions on Transportation Electrification)*.
 
