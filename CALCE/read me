@@ -1,8 +1,13 @@
-该测试电池采用的是Prismatic Cells 棱柱形电池
-额定容量为：1100 mAh 1100 毫安时
-测试说明：所有CS2电池都采用相同的充电曲线，即标准的恒流/恒压协议：以固定的恒定电流速率充电，直至电压达到4.2V，随后保持4.2V的电压，直至充电电流降至0.05A以下。除非另有说明，这些电池的放电截止电压为2.7V。所有CS2电池均进行随机编号并相应命名。第n个编号的CS2电池被命名为“CS2_n”。
+Battery Type: The test batteries used are Prismatic Cells.
 
-CS2-33和CS2-34是以0.5C的恒定电流进行循环的
-CS2-35~38都是以1C的恒定电流进行循环的
+Nominal Capacity: 1100 mAh
 
-两种工况的电池charge片段数据分别整理在了两个不同的.mat文件当中
+Testing Description: All CS2 batteries followed the same charging profile, which is a standard constant current/constant voltage (CC/CV) protocol: they were charged at a fixed constant current rate until the voltage reached 4.2V, and then the voltage was maintained at 4.2V until the charging current dropped below 0.05A. Unless otherwise specified, the discharge cut-off voltage for these batteries was 2.7V. All CS2 batteries were randomly numbered and named accordingly. The n-th numbered CS2 battery is named "CS2_n".
+
+Cycling Conditions:
+
+CS2-33 and CS2-34 were cycled at a constant current of 0.5C.
+
+CS2-35 to CS2-38 were cycled at a constant current of 1C.
+
+Data Storage: The charging segment data for the batteries under these two operating conditions have been organized into two separate .mat files, respectively.
