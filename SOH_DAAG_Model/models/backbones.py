@@ -3,9 +3,7 @@ import torch.nn as nn
 from layers.attention import SelfAttention, CausalConv1d
 
 class ClassicLSTM(nn.Module):
-    """
-    许多基线论文中使用的标准 LSTM。
-    """
+
     def __init__(self, input_dim=3, hidden_dim=64, num_layers=2):
         super(ClassicLSTM, self).__init__()
         self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True, dropout=0.2)
@@ -13,19 +11,13 @@ class ClassicLSTM(nn.Module):
     def forward(self, x):
         # x: [batch, seq, dim]
         out, _ = self.lstm(x)
-        return out[:, -1, :] # 最后一个时间步
+        return out[:, -1, :] 
 
 class AdvancedCNNLSTM(nn.Module):
-    """
-    1D-CNN + LSTM + 注意力机制
-    1. CNN 提取局部形状特征（充电曲线斜率等）
-    2. LSTM 捕捉长期依赖关系
-    3. 注意力机制加权最重要的时间步
-    """
+
     def __init__(self, input_dim=3, hidden_dim=64, num_layers=2, seq_len=256):
         super(AdvancedCNNLSTM, self).__init__()
         
-        # 多尺度 CNN
         self.conv1 = nn.Sequential(
             nn.Conv1d(input_dim, 16, kernel_size=3, padding=1),
             nn.BatchNorm1d(16),
@@ -54,7 +46,6 @@ class AdvancedCNNLSTM(nn.Module):
         
         lstm_out, _ = self.lstm(x) # [batch, seq, hidden]
         
-        # 注意力聚合
         feat, weights = self.attention(lstm_out)
         return feat
 
@@ -66,7 +57,6 @@ class AblationBackbone(nn.Module):
         self.use_lstm = use_lstm
         self.use_attn = use_attn
 
-        # 1. CNN 模块
         if self.use_cnn:
             self.cnn = nn.Sequential(
                 nn.Conv1d(input_dim, 16, kernel_size=3, padding=1),
@@ -78,21 +68,17 @@ class AblationBackbone(nn.Module):
                 nn.ReLU(),
                 nn.MaxPool1d(2)
             )
-            lstm_input_dim = 32  # CNN 输出通道数
+            lstm_input_dim = 32 
         else:
-            lstm_input_dim = input_dim  # 原始输入维度 (3)
+            lstm_input_dim = input_dim 
 
-        # 2. LSTM 模块
         if self.use_lstm:
             self.lstm = nn.LSTM(lstm_input_dim, hidden_dim, num_layers=2, batch_first=True)
             feat_dim = hidden_dim
         else:
-            # 如果不用 LSTM，直接用全连接层把维度对齐，方便后续处理
-            # 这是一个简单的替代，实际中很少只用 CNN+Attn 处理时序，但为了代码跑通可以这样
             self.fc_replace = nn.Linear(lstm_input_dim, hidden_dim)
             feat_dim = hidden_dim
 
-        # 3. Attention 模块
         if self.use_attn:
             self.attention = SelfAttention(hidden_dim)
 
@@ -115,12 +101,10 @@ class AblationBackbone(nn.Module):
 
         global_feat = x[:, -1, :]
         if self.use_attn:
-            # 注意力聚合所有时间步
             # feat, _ = self.attention(x)  # [B, Hidden]
             local_feat, _ = self.attention(x)
             feat = torch.cat([local_feat, global_feat], dim=1)
         else:
-            # 如果没有 Attention，通常取最后一个时间步
             # feat = x[:, -1, :]  # [B, Hidden]
             feat = global_feat
 
