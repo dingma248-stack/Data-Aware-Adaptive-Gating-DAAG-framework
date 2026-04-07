@@ -22,7 +22,7 @@ DAAG-Battery-SOH/
 │   ├── attention.py        # Self-Attention and CausalConv1d modules
 │   └── losses.py           # Multi-Kernel MMD, CORAL, and GRL implementations
 ├── models/
-│   ├── backbones.py        # Feature extractors (ClassicLSTM, AdvancedCNNLSTM, AblationBackbone)
+│   ├── backbones.py        # Feature extractors 
 │   └── transfer_net.py     # Main DAAG transfer network 
 ├── utils/
 │   └── preprocessing.py    # Time-series interpolation and normalization
@@ -44,7 +44,7 @@ DAAG-Battery-SOH/
 🧠 Hyperparameters & ConfigurationThe core advantage of the DAAG framework is its Data-Aware nature. Most hyper-parameters are dynamically routed based on the measured PAD value in main.py:
 PAD Threshold (PAD_THRESHOLD = 0.8): The boundary distinguishing low/high domain shifts.
   If PAD < 0.8 (Low Shift): Utilizes lstm_only architecture, MMD penalty lambda_mmd = 0.0.
-  If PAD ≥ 0.8 (High Shift): Utilizes complete (CNN-Attn-LSTM) architecture, MMD penalty lambda_mmd = 0.05.
+  If PAD ≥ 0.8 (High Shift): Utilizes complete (CNN-LSTM-Attn) architecture, MMD penalty lambda_mmd = 0.05.
 Multi-Seed Validation: Set to [2026, 42, 1] by default for robust statistical evaluation.
 Warm-up Strategy: Configurable in main.py (WARMUP_EPOCHS = 0 by default, can be adjusted to 30/50 for progressive alignment stability tests).
 
