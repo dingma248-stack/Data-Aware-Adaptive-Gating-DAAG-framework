@@ -5,7 +5,6 @@ import os
 import time
 import numpy as np
 
-# 导入机器学习与数据处理库用于计算 PAD
 from sklearn.svm import LinearSVC
 from sklearn.model_selection import cross_val_score
 from sklearn.decomposition import PCA
@@ -14,30 +13,25 @@ from sklearn.utils import resample
 try:
     from tqdm import tqdm
 except ImportError:
-    print("建议安装 tqdm 以获得更好的进度显示: pip install tqdm")
+    print("It is recommended to install tqdm for better progress visualization: pip install tqdm")
     tqdm = None
 
-# =====================================================================
-# 尝试导入数据加载器 (用于计算 PAD)
-# =====================================================================
 try:
     from datasets.loaders import load_battery_data
 except ImportError:
     try:
         from loaders import load_battery_data
     except ImportError:
-        print("警告: 找不到 load_battery_data 函数，请确保其位于 python 路径中")
+        print("Warning: load_battery_data function not found, please ensure it is in the Python path")
 
-# =====================================================================
-# 定义文件名常量 & 构建 EXPERIMENTS_LIST
-# =====================================================================
+
 C_33, C_34, C_35, C_36, C_37, C_38 = "CS2_33", "CS2_34", "CS2_35", "CS2_36", "CS2_37", "CS2_38"
 MIT_FILE_A = "min_batch-5.2-5.2-4.8-4.16.mat"
 MIT_FILE_B = "min_batch-6-5.6-4.4-3.834.mat"
 
 EXPERIMENTS_LIST = []
 
-# 1. CACLE 任务
+# 1. CACLE 
 cacle_source_train = [C_35, C_36, C_37, C_38]
 cacle_targets = [C_33, C_34]
 for tgt in cacle_targets:
@@ -60,7 +54,7 @@ for tgt in cacle_targets_rev:
         "target": [tgt]
     })
 
-# 2. MIT 任务 (8组)
+# 2. MIT 
 mit_configs = [
     ((MIT_FILE_A, 0), (MIT_FILE_B, 0)), ((MIT_FILE_A, 0), (MIT_FILE_B, 1)),
     ((MIT_FILE_A, 1), (MIT_FILE_B, 0)), ((MIT_FILE_A, 1), (MIT_FILE_B, 1)),
@@ -79,19 +73,12 @@ for i, (src, tgt) in enumerate(mit_configs):
         "target": [tgt]
     })
 
-# =====================================================================
-# 全局与超参数配置
-# =====================================================================
+
 WARMUP_EPOCHS = 0
 SEEDS = [2026, 42, 1]
-# 定义一个 PAD 阈值，用于区分高/低域偏。通常 CALCE 在 0.2~0.5 左右，MIT 在 1.2+
-# 0.8 是一个非常合理的分水岭
 PAD_THRESHOLD = 0.8
 
 
-# =====================================================================
-# 核心计算函数：Proxy A-distance (真实数据感知)
-# =====================================================================
 def calculate_proxy_a_distance(source_data, target_data):
     X_s = source_data.reshape(source_data.shape[0], -1)
     X_t = target_data.reshape(target_data.shape[0], -1)
@@ -119,15 +106,8 @@ def calculate_proxy_a_distance(source_data, target_data):
     return max(0.0, pad)
 
 
-# =====================================================================
-# 基于 PAD 的真实自适应门控 (Data-Aware Adaptive Gating)
-# =====================================================================
 def get_adaptive_config_by_pad(pad_value):
-    """
-    极简双层感知门控（基于 PAD 理论支撑）
-    """
     if pad_value < PAD_THRESHOLD:
-        # PAD 低：域偏小。采用极简网络 (lstm_only)，关闭分布对齐 (lambda_mmd=0.0) 防止负迁移
         return {
             "ablation": "lstm_only",
             "lambda_mmd": 0.0,
@@ -136,7 +116,6 @@ def get_adaptive_config_by_pad(pad_value):
             "shift_level": "LOW"
         }
     else:
-        # PAD 高：域偏大。采用增强网络 (complete)，开启分布对齐 (lambda_mmd=0.05)
         return {
             "ablation": "complete",
             "lambda_mmd": 0.05,
@@ -145,10 +124,6 @@ def get_adaptive_config_by_pad(pad_value):
             "shift_level": "HIGH"
         }
 
-
-# =====================================================================
-# 核心执行函数
-# =====================================================================
 def run_experiment_task(task_config, current_seed, config, pad_value, project_root):
     dataset_type = task_config["dataset"]
     unique_exp_name = f"{task_config['exp_name']}_s{current_seed}"
@@ -168,8 +143,6 @@ def run_experiment_task(task_config, current_seed, config, pad_value, project_ro
     def format_keys(keys_list):
         return ",".join(
             [f"{item[0]}:{item[1]}" if isinstance(item, (list, tuple)) else str(item) for item in keys_list])
-
-    # 注意：完全去除了 use_advanced
     cmd_args = [
         "--dataset", dataset_type,
         "--root_dir", project_root,
@@ -256,27 +229,22 @@ def run_experiment_task(task_config, current_seed, config, pad_value, project_ro
     process.wait()
     return final_rmse, final_mae, final_r2
 
-
-# =====================================================================
-# 多种子入口与结果统计
-# =====================================================================
 def run_multi_seed_experiment():
     print(f"\n=======================================================================")
     print(f" Starting DAAG Multi-Seed Validation ({len(SEEDS)} seeds) with {len(EXPERIMENTS_LIST)} tasks...")
     print(f" Gating Logic: True PAD measurement (Threshold = {PAD_THRESHOLD})")
     print(f"=======================================================================")
 
-    # 自动定位数据根目录
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    if os.path.exists(os.path.join(script_dir, "CACLE数据集")):
+    if os.path.exists(os.path.join(script_dir, "CACLE")):
         project_root = script_dir
-    elif os.path.exists(os.path.join(os.path.dirname(script_dir), "CACLE数据集")):
+    elif os.path.exists(os.path.join(os.path.dirname(script_dir), "CACLE")):
         project_root = os.path.dirname(script_dir)
     else:
         project_root = script_dir
 
-    root_cacle = os.path.join(project_root, "CACLE数据集")
-    root_mit = os.path.join(project_root, "MIT数据集", "charge")
+    root_cacle = os.path.join(project_root, "CACLE")
+    root_mit = os.path.join(project_root, "MIT", "charge")
 
     final_results = {}
 
@@ -287,7 +255,6 @@ def run_multi_seed_experiment():
         print(f"\n\n{'=' * 80}")
         print(f"PROCESSING TASK: {task_name}")
 
-        # 1. 在训练开始前，动态加载数据并计算真实 PAD
         print(f"[Phase 1] Loading data to calculate Proxy A-distance...")
         root_path = root_cacle if dataset_type == 'cacle' else root_mit
         try:
@@ -295,18 +262,16 @@ def run_multi_seed_experiment():
             X_t, _ = load_battery_data(dataset_type, root_path, task['target'], seq_len=256)
 
             if len(X_s) == 0 or len(X_t) == 0:
-                print(f"警告：任务 {task_name} 数据加载失败，跳过计算。")
+                print(f"Warning: Data loading failed for task {task_name}, skipping computation.")
                 continue
 
             pad_val = calculate_proxy_a_distance(X_s, X_t)
         except Exception as e:
-            print(f"计算 PAD 时发生错误: {e}。默认退化为低域偏配置。")
+            print(f"Error occurred during PAD calculation: {e}. Falling back to the default low domain bias configuration.")
             pad_val = 0.0
 
-        # 2. 将计算得到的 pad_val 送入门控函数，获取当前任务的专属架构
         task_config_dict = get_adaptive_config_by_pad(pad_val)
 
-        # 3. 开始多随机种子验证
         print(f"[Phase 2] Starting model training over {len(SEEDS)} seeds...")
         print(f"{'=' * 80}")
         seed_rmses, seed_maes, seed_r2s = [], [], []
@@ -328,7 +293,6 @@ def run_multi_seed_experiment():
             "pad": pad_val
         }
 
-    # 最终汇总报告
     print(f"\n\n{'=' * 125}")
     print(
         f"{'Experiment Task':<35} | {'PAD':<6} | {'Mean RMSE ± Std':<22} | {'Mean MAE ± Std':<22} | {'Mean R2 ± Std':<22}")
