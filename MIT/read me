@@ -15,3 +15,5 @@ Group 6: Charging protocol: 7-4.8-4.8-3.652; Corresponding channels: 3, 25, 26, 
 Group 7: Charging protocol: 8-4.4-4.4-3.94; Corresponding channels: 13, 16, 23, 24, 47
 Group 8: Charging protocol: 8-6-4.8-3; Corresponding channels: 14, 17, 30, 35, 39
 Group 9: Charging protocol: 8-7-5.2-2.68; Corresponding channels: 19, 33, 34, 40, 43
+
+The experiment primarily focused on the data selected from Group 4 and Group 5.
