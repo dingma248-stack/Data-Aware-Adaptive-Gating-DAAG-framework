@@ -1,15 +1,17 @@
-1、电池基础参数：电池类型为磷酸铁锂（LiFePO₄，LFP），由 A123 Systems 生产，型号为 APR18650M1A；标称容量 1.1 Ah，标称电压 3.3 V。
-2、充电流程：分 4 阶段恒流（CC）快充至 80% SOC，前 3 阶段分别充电 20% SOC（对应 0%-20%、20%-40%、40%-60% 区间），第四阶段充电速率需满足总快充时间 10 分钟；之后采用恒流恒压（CC-CV）模式充满电。
-3、数据范围：使用了最后一批 45 个电池的 “失效循环” 完整数据，按充电策略差异分为 9 组（每组 5 个电池），每组对应不同的 4 阶段充电速率组合。
+1. Basic Battery Parameters: The battery type is Lithium Iron Phosphate (LiFePO₄, LFP), manufactured by A123 Systems, model APR18650M1A; nominal capacity is 1.1 Ah, and nominal voltage is 3.3 V.
 
-9个.mat文件分别对应9组不同充电策略的电池，每个文件里面作了五组同种电池实验
+2. Charging Procedure: A 4-stage constant current (CC) fast charge is applied up to 80% SOC. The first 3 stages each charge by 20% SOC (corresponding to the 0%-20%, 20%-40%, and 40%-60% intervals). The charging rate for the fourth stage must be set so that the total fast charging time is exactly 10 minutes. Afterwards, a constant current-constant voltage (CC-CV) mode is used to fully charge the battery.
 
-Group 1：充电协议（0-20%-40%-60%-80% 阶段速率）：3.6-6-5.6-4.755；对应通道：11,12,27,29,38
-Group 2：充电协议：4.4-5.6-5.2-4.252；对应通道：8,15,18,32,48
-Group 3：充电协议：4.8-5.2-5.2-4.16；对应通道：1,2,10,20,42
-Group 4：充电协议：5.2-5.2-4.8-4.16；对应通道：6,7,37,41,45
-Group 5：充电协议：6-5.6-4.4-3.834；对应通道：9,21,22,31,36
-Group 6：充电协议：7-4.8-4.8-3.652；对应通道：3,25,26,28,44
-Group 7：充电协议：8-4.4-4.4-3.94；对应通道：13,16,23,24,47
-Group 8：充电协议：8-6-4.8-3；对应通道：14,17,30,35,39
-Group 9：充电协议：8-7-5.2-2.68；对应通道：19,33,34,40,43
+3. Data Scope: The complete "cycle-to-failure" data of the final batch of 45 batteries was used. Based on different charging strategies, they are divided into 9 groups (5 batteries per group), with each group corresponding to a different combination of 4-stage charging rates.
+
+The 9 .mat files correspond respectively to the 9 groups of batteries with different charging strategies, and each file contains five sets of experiments conducted on the same type of battery.
+
+Group 1: Charging protocol (rates for 0-20%-40%-60%-80% stages): 3.6-6-5.6-4.755; Corresponding channels: 11, 12, 27, 29, 38
+Group 2: Charging protocol: 4.4-5.6-5.2-4.252; Corresponding channels: 8, 15, 18, 32, 48
+Group 3: Charging protocol: 4.8-5.2-5.2-4.16; Corresponding channels: 1, 2, 10, 20, 42
+Group 4: Charging protocol: 5.2-5.2-4.8-4.16; Corresponding channels: 6, 7, 37, 41, 45
+Group 5: Charging protocol: 6-5.6-4.4-3.834; Corresponding channels: 9, 21, 22, 31, 36
+Group 6: Charging protocol: 7-4.8-4.8-3.652; Corresponding channels: 3, 25, 26, 28, 44
+Group 7: Charging protocol: 8-4.4-4.4-3.94; Corresponding channels: 13, 16, 23, 24, 47
+Group 8: Charging protocol: 8-6-4.8-3; Corresponding channels: 14, 17, 30, 35, 39
+Group 9: Charging protocol: 8-7-5.2-2.68; Corresponding channels: 19, 33, 34, 40, 43
