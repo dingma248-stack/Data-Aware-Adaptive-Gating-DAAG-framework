@@ -12,7 +12,6 @@ class SelfAttention(nn.Module):
         )
 
     def forward(self, encoder_outputs):
-        # 编码器输出：[批量大小, 序列长度, 隐藏维度]
         energy = self.projection(encoder_outputs) # [batch, seq, 1]
         weights = F.softmax(energy.squeeze(-1), dim=1) # [batch, seq]
         # 加权求和
