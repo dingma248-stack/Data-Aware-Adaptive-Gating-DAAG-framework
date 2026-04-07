@@ -26,8 +26,8 @@ class BatteryDataset(Dataset):
 def load_battery_data(dataset_name, root_path, battery_names, seq_len=256, feature_type='V-I-T'):
     """
     Unified loader for CACLE and MIT.
-    dataset_name: 'cacle' 或 'mit'
-    feature_type: 'V-I-T' (电压, 电流, 时间) 或 'V-IC' (电压, 增量容量)
+    dataset_name: 'cacle' or 'mit'
+    feature_type: 'V-I-T' (Voltage, Current, Time) or 'V-IC' (Voltage, Incremental Capacity)
     """
     X_list = []
     y_list = []
@@ -35,14 +35,14 @@ def load_battery_data(dataset_name, root_path, battery_names, seq_len=256, featu
     print(f"Loading {dataset_name} batteries: {battery_names}...")
 
     if dataset_name.lower() == 'cacle':
-        # CACLE 处理逻辑
+        # CACLE processing logic
         potential_files = [
             os.path.join(root_path, "CS2_1C_Charge_Data_Relaxed.mat"),
             os.path.join(root_path, "CS2_0.5C_Charge_Data_Relaxed.mat")
         ]
 
         for bat in battery_names:
-            # 如果是 (bat, idx) 格式，CACLE 暂时只取 bat 名称（CACLE通常按名称索引）
+            # If in (bat, idx) format, CACLE currently only extracts the 'bat' name (CACLE is typically indexed by name)
             if isinstance(bat, (tuple, list)):
                 bat = bat[0]
 
@@ -53,7 +53,7 @@ def load_battery_data(dataset_name, root_path, battery_names, seq_len=256, featu
                     continue
                 try:
                     mat = sio.loadmat(fpath)
-                    # 检查键值
+                   # Check key values
                     key = bat
                     if key not in mat and key.replace('-', '_') in mat:
                         key = key.replace('-', '_')
@@ -70,10 +70,10 @@ def load_battery_data(dataset_name, root_path, battery_names, seq_len=256, featu
                                 cap = float(np.array(bat_data[0, i]['Capacity']).flat[0])
 
                                 if len(volt) < 10: continue
-                                # NaN 检查
+                                # NaN check
                                 if np.isnan(volt).any() or np.isnan(curr).any(): continue
 
-                                # 时间归一化
+                                # Time normalization
                                 time = time - time[0]
 
                                 v_res = interpolate_data(volt, seq_len)
@@ -87,7 +87,7 @@ def load_battery_data(dataset_name, root_path, battery_names, seq_len=256, featu
                                 print(f"Error parsing cycle {i}: {e}")
                                 pass
                         found = True
-                        break  # 在此文件中找到电池，继续处理下一个
+                        break  # Battery found in this file, proceed to the next
                     else:
                         pass
                 except Exception as e:
@@ -96,15 +96,15 @@ def load_battery_data(dataset_name, root_path, battery_names, seq_len=256, featu
                 print(f"Warning: Battery {bat} not found.")
 
     elif dataset_name.lower() == 'mit':
-        # MIT 处理逻辑
+        # MIT processing logic
         for item in battery_names:
-            # --- 修改重点：区分文件名和元组 ---
+            
             if isinstance(item, (tuple, list)):
                 fname = item[0]
-                target_idx = int(item[1])  # 指定提取第几个电池
+                target_idx = int(item[1])  # Specify which battery to extract
             else:
                 fname = item
-                target_idx = None  # 默认提取所有
+                target_idx = None  
 
             fpath = os.path.join(root_path, fname)
             if not os.path.exists(fpath):
@@ -114,7 +114,6 @@ def load_battery_data(dataset_name, root_path, battery_names, seq_len=256, featu
             try:
                 mat = sio.loadmat(fpath)
 
-                # --- 自动适配 key (min_batch 通常用 'batch') ---
                 if 'battery' in mat:
                     batteries = mat['battery']
                 elif 'batch' in mat:
@@ -125,20 +124,17 @@ def load_battery_data(dataset_name, root_path, battery_names, seq_len=256, featu
 
                 num_bats = batteries.shape[1]
 
-                # 如果指定了索引且越界，提示警告
                 if target_idx is not None and target_idx >= num_bats:
                     print(f"Warning: Index {target_idx} out of bounds for {fname} (has {num_bats} bats)")
                     continue
 
                 for b_idx in range(num_bats):
-                    # --- 如果指定了 target_idx，则只处理对应的电池 ---
+
                     if target_idx is not None and b_idx != target_idx:
                         continue
-
                     try:
                         bat_struct = batteries[0, b_idx]
 
-                        # 处理嵌套结构，防止有些mat结构差异
                         if 'cycles' not in bat_struct.dtype.names:
                             continue
 
@@ -148,14 +144,12 @@ def load_battery_data(dataset_name, root_path, battery_names, seq_len=256, featu
                         for c_idx in range(n_cycles):
                             try:
                                 cycle = cycles[0, c_idx]
-                                # 字段名称适配
                                 if 'voltage_V' in cycle.dtype.names:
                                     volt = cycle['voltage_V'].flatten().astype(float)
                                     curr = cycle['current_A'].flatten().astype(float)
                                     time_min = cycle['relative_time_min'].flatten().astype(float)
                                     cap = cycle['capacity'].flatten()[0]
                                 else:
-                                    # 备用字段名（如果有不同版本）
                                     continue
 
                                 if len(volt) < 10: continue
@@ -186,7 +180,6 @@ def load_battery_data(dataset_name, root_path, battery_names, seq_len=256, featu
         print("Warning: No data loaded!")
         return np.array([]), np.array([])
 
-    # 全局特征归一化
     if dataset_name.lower() == 'cacle':
         min_val = np.array([2.0, -1.0, 0.0])
         max_val = np.array([5.0, 10.0, 5000.0])
@@ -197,7 +190,6 @@ def load_battery_data(dataset_name, root_path, battery_names, seq_len=256, featu
         max_val = np.array([5.0, 10.0, 3600.0])
         X = (X - min_val.reshape(1, 1, 3)) / (max_val.reshape(1, 1, 3) - min_val.reshape(1, 1, 3))
 
-    # 全局目标归一化 (SOH)
     if len(y) > 0:
         y_max = y.max()
         if y_max > 0:
