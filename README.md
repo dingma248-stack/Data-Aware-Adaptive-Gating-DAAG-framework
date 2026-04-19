@@ -2,7 +2,7 @@
 Official code for the DAAG framework: An unsupervised domain adaptation approach utilizing Proxy A-distance (PAD) for dynamic network routing in battery SOH estimation.
 
 This repository provides the official PyTorch implementation of the paper:
-**"A Data-Aware Adaptive Gating Framework for Robust Cross-Domain SOH Estimation of Electric Vehicle Lithium-Ion Batteries"** *(Submitted to IEEE Transactions on Transportation Electrification)*.
+**"A Data-Aware Adaptive Gating Framework for Robust Cross-Domain SOH Estimation of Electric Vehicle Lithium-Ion Batteries"** .
 
 ## 📝 Introduction
 Accurate State-of-Health (SOH) estimation for lithium-ion batteries is critical but challenging under complex, dynamic operating conditions. Existing Unsupervised Domain Adaptation (UDA) methods rely on fixed transfer strategies, causing negative transfer in low domain-shift scenarios and insufficient alignment in high-shift ones.
